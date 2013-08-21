@@ -4,17 +4,8 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
-  body
-    form
-      label
-        input(type='radio', name='mode', value='size')
-        | Size
-      label
-        input(type='radio', name='mode', value='count', checked='checked')
-        | Count
     script(src='http://d3js.org/d3.v3.min.js')
+    script(src='http://localhost:8003/socket.io/socket.io.js')
+    script(src='/javascripts/script.js')
+  body
     block content
-
-    
-    
-    

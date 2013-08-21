@@ -1,37 +1,8 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-
-body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  margin: auto;
-  position: relative;
-  width: 960px;
-}
-
-form {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
-
-</style>
-<form>
-  <label><input type="radio" name="mode" value="size"> Size</label>
-  <label><input type="radio" name="mode" value="count" checked> Count</label>
-</form>
-
-<script src="http://localhost:8003/socket.io/socket.io.js"></script>
-<script>
-  var socket = io.connect('http://localhost:8003/');
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
-  });
-</script>
-
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script>
+var socket = io.connect('http://localhost:8003/');
+socket.on('news', function (data) {
+  console.log(data);
+  socket.emit('my other event', { my: 'data' });
+});
 
 var width = 960,
     height = 700,
@@ -97,5 +68,3 @@ function arcTween(a) {
 }
 
 d3.select(self.frameElement).style("height", height + "px");
-
-</script>

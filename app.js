@@ -14,8 +14,13 @@ var app = express();
 
 function compile(str, path) {
   return stylus(str)
+    .define('url', stylus.url({
+      paths : [__dirname + "/public"],
+      limit : 10000
+    }))
     .set('filename', path)
-    .use(nib())
+    .set('compress', true)
+    .use(nib());
 }
 
 /**
