@@ -12,6 +12,13 @@ var nib = require('nib');
 
 var app = express();
 
+/**
+ * Variables
+ */
+
+var mindwaveData = {};
+
+
 function compile(str, path) {
   return stylus(str)
     .define('url', stylus.url({
@@ -31,7 +38,6 @@ function compile(str, path) {
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
-app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
@@ -65,9 +71,10 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
+  socket.emit('mindwave', mindwaveData);
   socket.on('my other event', function (data) {
     console.log(data);
+    console.log("stuff and things");
   });
 });
 
@@ -85,7 +92,7 @@ var tgClient = nodeThinkGear.createClient({
 });
 
 tgClient.on('data',function(data){
-	console.log(data);
+	mindwaveData = data;
 });
 
 tgClient.connect();

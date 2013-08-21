@@ -1,5 +1,5 @@
-var socket = io.connect('http://localhost:8003/');
-socket.on('news', function (data) {
+var socket = io.connect('http://localhost:3000/');
+socket.on('mindwave', function (data) {
   console.log(data);
   socket.emit('my other event', { my: 'data' });
 });
