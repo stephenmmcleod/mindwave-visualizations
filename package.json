@@ -9,6 +9,7 @@
     "express": "3.3.5",
     "jade": "*",
     "stylus": "*",
+    "nib": "*",
     "node-neurosky": "*",
     "socket.io": "0.9.16"
   }
