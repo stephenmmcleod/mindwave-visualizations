@@ -1,7 +1,23 @@
 var socket = io.connect('http://localhost:3000/');
-socket.on('mindwave', function (data) {
-  console.log(data);
-  socket.emit('my other event', { my: 'data' });
+
+setInterval(function(){
+  socket.emit('getMindwave', { success: true });
+},100);
+
+socket.on('updateMindwave', function (data) {
+  // console.log(data['eegPower']['highGamma']);
+  // data['eSense']['attention']
+  // data['eSense']['meditation']
+  // data['eegPower']['delta']
+  // data['eegPower']['theta']
+  // data['eegPower']['lowAlpha']
+  // data['eegPower']['highAlpha']
+  // data['eegPower']['highBeta']
+  // data['eegPower']['highBeta']
+  // data['eegPower']['highGamma']
+  // data['eegPower']['highGamma']
+  // 
+
 });
 
 var width = 960,

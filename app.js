@@ -71,10 +71,10 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('mindwave', mindwaveData);
-  socket.on('my other event', function (data) {
-    console.log(data);
-    console.log("stuff and things");
+  socket.emit('startMindwave', true);
+  socket.on('getMindwave', function (data) {
+  	socket.emit('updateMindwave', mindwaveData);
+    // console.log(data);
   });
 });
 
