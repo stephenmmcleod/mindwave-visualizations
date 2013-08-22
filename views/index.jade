@@ -1,6 +1,7 @@
 extends layout
 
 block content
+  .center
   script(type='text/javascript').
     socket.on('updateMindwave', function (data) {
       if (data['blinkStrength'] == null) {
@@ -28,8 +29,10 @@ block content
         layers1 = stack(d3.range(n).map(function() { return bumpLayer(m); }));
 
 
-    var width = 960,
-        height = 500;
+    var width = $(".center").width(),
+        height = $(".center").height();
+    //- var width = 1436,
+        //- height = 404;
 
     var x = d3.scale.linear()
         .domain([0, m - 1])
@@ -47,7 +50,7 @@ block content
         .y0(function(d) { return y(d.y0); })
         .y1(function(d) { return y(d.y0 + d.y); });
 
-    var svg = d3.select("body").append("svg")
+    var svg = d3.select(".center").append("svg")
         .attr("width", width)
         .attr("height", height);
 
@@ -87,3 +90,47 @@ block content
       for (i = 0; i < 5; ++i) bump(a);
       return a.map(function(d, i) { return {x: i, y: Math.max(0, d)}; });
     }
+
+
+
+    //stuff to scale it to window
+
+    //- $(document).ready(function() {
+    //-   $(window).resize(function() {
+    //-       if(this.resizeTO) clearTimeout(this.resizeTO);
+    //-       this.resizeTO = setTimeout(function() {
+    //-           $(this).trigger('resizeEnd');
+    //-       }, 500);
+    //-   });
+
+    //-   $(window).bind('resizeEnd', function() {
+    //-       var height = $("#center").width()/2;
+    //-       $("#center svg").css("height", height);
+    //-       draw(height);
+    //-   });
+
+    //-   function draw(ht) {
+    //-       $("#center").html("<svg id='map' xmlns='http://www.w3.org/2000/svg' width='100%' height='" + ht + "'></svg>");
+    //-       map = d3.select("svg");
+    //-       var width = $("svg").parent().width();
+    //-       var height = ht;
+
+    //-       // I discovered that the unscaled equirectangular map is 640x360. Thus, we
+    //-       // should scale our map accordingly. Depending on the width ratio of the new
+    //-       // container, the scale will be this ratio * 100. You could also use the height 
+    //-       // instead. The aspect ratio of an equirectangular map is 2:1, so that's why
+    //-       // our height is half of our width.
+
+    //-       projection = d3.geo.equirectangular().scale((width/640)*100).translate([width/2, height/2]);
+    //-       var path = d3.geo.path().projection(projection);
+    //-       d3.json('plugins/maps/world.json', function(collection) {
+    //-           map.selectAll('path').data(collection.features).enter()
+    //-               .append('path')
+    //-               .attr('d', path)
+    //-               .attr("width", width)
+    //-               .attr("height", width/2);
+    //-       });
+    //-   }
+    //-   draw($("#center").width()/2);
+    //- });
+  
