@@ -2,11 +2,23 @@ extends layout
 
 block content
   script(type='text/javascript').
+    socket.on('updateMindwave', function (data) {
+      if (data['blinkStrength'] == null) {
+        waveData = data;
+        blinking = false;
+      } else {
+        blinking = data['blinkStrength'];
+      }
+      console.log(waveData);
+      console.log(blinking);
+    });
+
     var n = 8, // number of layers
         m = 300, // number of samples per layer
         stack = d3.layout.stack().offset("wiggle"),
         layers0 = stack(d3.range(n).map(function() { return bumpLayer(m); })),
         layers1 = stack(d3.range(n).map(function() { return bumpLayer(m); }));
+
 
     var width = 960,
         height = 500;

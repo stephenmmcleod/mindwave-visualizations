@@ -10,3 +10,7 @@ exports.index = function(req, res){
 exports.circle = function(req, res){
   res.render('circle', { title: 'Circle Graph' });
 };
+
+exports.meditation = function(req, res){
+  res.render('meditation', { title: 'Meditation Time' });
+};
