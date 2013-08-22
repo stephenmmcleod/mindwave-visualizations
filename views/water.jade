@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  script(type='text/javascript').
+    socket.on('updateMindwave', function (data) {
+      if (data['blinkStrength'] == null && data['poorSignalLevel'] < 190) {
+        blinking = false;
+        sense = data['eSense']['meditation']/100;
+      } else {
+        blinking = data['blinkStrength'];
+        sense = 0;
+      }
+     d3.select("img").transition().duration(500).style("opacity", sense);
+    });
+  .bg
+    .center
+      img(src='/images/water02.gif')

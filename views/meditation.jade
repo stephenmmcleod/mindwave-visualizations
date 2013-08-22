@@ -6,39 +6,30 @@ block content
       if (data['blinkStrength'] == null && data['poorSignalLevel'] < 190) {
         blinking = false;
         var color = d3.scale.linear()
-          .range(["#ebfbfb", "#02090a"]);
-        sense = data['eSense']['meditation'];
-        bg = color(sense/100);
-        d3.select("p").text(sense);
+          .range(["#003b3d", "#e7feff"]);
+          //- .range(["#ebfbfb", "#02090a"]);
+          //- .range(["#fff", "#000"]);
+        sense = data['eSense']['meditation']/100;
+        bg = color(sense);
+        //- d3.select(".left p").text(sense);
         d3.select(".top").transition().duration(500).style("background-color", bg);
 
-        color = d3.scale.linear()
-          .range(["#04080f", "#f3f6fb"]);
-        sense = data['eSense']['attention'];
-        bg = color(sense/100);
-        d3.select("p").text(sense);
-        d3.select("body").transition().duration(500).style("background-color", bg);
+        var color2 = d3.scale.linear()
+          //- .range(["#ebfbfb", "#02090a"]);
+          .range(["#003b3d", "#e7feff"]);
+          //- .range(["#19020c", "#fde9f1"]);
+          //- .range(["#fff", "#000"]);
+        sense2 = data['eSense']['attention']/100;
+        bg2 = color2(sense2);
+        //- d3.select(".right p").text(sense2);
+        d3.select(".bottom").transition().duration(500).style("background-color", bg2);
       } else {
         blinking = data['blinkStrength'];
       }
-      //- console.log(data);
-      //- console.log(blinking);
-
-
-      
-
-      // console.log(data['eegPower']['highGamma']);
       // waveData['eSense']['attention']
       // waveData['eSense']['meditation']
-      // waveData['eegPower']['delta']
-      // waveData['eegPower']['theta']
-      // waveData['eegPower']['lowAlpha']
-      // waveData['eegPower']['highAlpha']
-      // waveData['eegPower']['highBeta']
-      // waveData['eegPower']['highBeta']
-      // waveData['eegPower']['highGamma']
-      // waveData['eegPower']['highGamma']
+     
     });
-  p
-  .top
-  .bottom
+  .bg
+    .top
+    .bottom

@@ -14,3 +14,6 @@ exports.circle = function(req, res){
 exports.meditation = function(req, res){
   res.render('meditation', { title: 'Meditation Time' });
 };
+exports.water = function(req, res){
+  res.render('water', { title: 'Meditation Water' });
+};
