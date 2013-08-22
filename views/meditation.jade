@@ -1,0 +1,44 @@
+extends layout
+
+block content
+  script(type='text/javascript').
+    socket.on('updateMindwave', function (data) {
+      if (data['blinkStrength'] == null && data['poorSignalLevel'] < 190) {
+        blinking = false;
+        var color = d3.scale.linear()
+          .range(["#ebfbfb", "#02090a"]);
+        sense = data['eSense']['meditation'];
+        bg = color(sense/100);
+        d3.select("p").text(sense);
+        d3.select(".top").transition().duration(500).style("background-color", bg);
+
+        color = d3.scale.linear()
+          .range(["#04080f", "#f3f6fb"]);
+        sense = data['eSense']['attention'];
+        bg = color(sense/100);
+        d3.select("p").text(sense);
+        d3.select("body").transition().duration(500).style("background-color", bg);
+      } else {
+        blinking = data['blinkStrength'];
+      }
+      //- console.log(data);
+      //- console.log(blinking);
+
+
+      
+
+      // console.log(data['eegPower']['highGamma']);
+      // waveData['eSense']['attention']
+      // waveData['eSense']['meditation']
+      // waveData['eegPower']['delta']
+      // waveData['eegPower']['theta']
+      // waveData['eegPower']['lowAlpha']
+      // waveData['eegPower']['highAlpha']
+      // waveData['eegPower']['highBeta']
+      // waveData['eegPower']['highBeta']
+      // waveData['eegPower']['highGamma']
+      // waveData['eegPower']['highGamma']
+    });
+  p
+  .top
+  .bottom
