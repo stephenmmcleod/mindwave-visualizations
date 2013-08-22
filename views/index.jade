@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  .center
+  .streamgraph
   script(type='text/javascript').
     socket.on('updateMindwave', function (data) {
       if (data['blinkStrength'] == null) {
@@ -29,8 +29,8 @@ block content
         layers1 = stack(d3.range(n).map(function() { return bumpLayer(m); }));
 
 
-    var width = $(".center").width(),
-        height = $(".center").height();
+    var width = $(".streamgraph").width(),
+        height = $(".streamgraph").height();
     //- var width = 1436,
         //- height = 404;
 
@@ -50,7 +50,7 @@ block content
         .y0(function(d) { return y(d.y0); })
         .y1(function(d) { return y(d.y0 + d.y); });
 
-    var svg = d3.select(".center").append("svg")
+    var svg = d3.select(".streamgraph").append("svg")
         .attr("width", width)
         .attr("height", height);
 
