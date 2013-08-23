@@ -4,42 +4,35 @@ block content
   .streamgraph
   script(type='text/javascript').
     socket.on('updateMindwave', function (data) {
-      if (data['blinkStrength'] == null) {
+      if (data['blinkStrength'] == null && data['poorSignalLevel'] < 190) {
+        //- console.log(data);
         waveData = data;
+        transition(waveData);
         blinking = false;
       } else {
         blinking = data['blinkStrength'];
+        transition(waveData);
       }
-      //- console.log(waveData);
-      //- console.log(blinking);
-      // waveData['eegPower']['delta']
-      // waveData['eegPower']['theta']
-      // waveData['eegPower']['lowAlpha']
-      // waveData['eegPower']['highAlpha']
-      // waveData['eegPower']['highBeta']
-      // waveData['eegPower']['highBeta']
-      // waveData['eegPower']['highGamma']
-      // waveData['eegPower']['highGamma']
+
     });
 
-    var n = 8, // number of layers
+    var n = 5, // number of layers
         m = 300, // number of samples per layer
         stack = d3.layout.stack().offset("wiggle"),
-        layers0 = stack(d3.range(n).map(function() { return bumpLayer(m); })),
-        layers1 = stack(d3.range(n).map(function() { return bumpLayer(m); }));
+        layers = stack(d3.range(n).map(function() { return bumpLayer(m); }))
+        
 
 
     var width = $(".streamgraph").width(),
         height = $(".streamgraph").height();
-    //- var width = 1436,
-        //- height = 404;
 
     var x = d3.scale.linear()
         .domain([0, m - 1])
         .range([0, width]);
 
     var y = d3.scale.linear()
-        .domain([0, d3.max(layers0.concat(layers1), function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); })])
+        //- .domain([0, d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); })])
+        .domain([0, 400000])
         .range([height, 0]);
 
     var color = d3.scale.linear()
@@ -55,18 +48,50 @@ block content
         .attr("height", height);
 
     svg.selectAll("path")
-        .data(layers0)
+        .data(layers)
       .enter().append("path")
         .attr("d", area)
         .style("fill", function() { return color(Math.random()); });
 
-    function transition() {
+    function transition(waveData) {
+      fx = layers[0].length-1;
+      //- fx = 0;
+      layers[0].push({"x" : fx, 'y' : waveData['eegPower']['delta'],     'y0' : waveData['eegPower']['delta']});
+      layers[1].push({"x" : fx, 'y' : waveData['eegPower']['theta'],     'y0' : waveData['eegPower']['theta']});
+      layers[2].push({"x" : fx, 'y' : waveData['eegPower']['lowAlpha'],  'y0' : waveData['eegPower']['lowAlpha']});
+      layers[2].push({"x" : fx, 'y' : waveData['eegPower']['highAlpha'],  'y0' : waveData['eegPower']['highAlpha']});
+      layers[3].push({"x" : fx, 'y' : waveData['eegPower']['lowBeta'],   'y0' : waveData['eegPower']['lowBeta']});
+      layers[3].push({"x" : fx, 'y' : waveData['eegPower']['highBeta'],   'y0' : waveData['eegPower']['highBeta']});
+      layers[4].push({"x" : fx, 'y' : waveData['eegPower']['lowGamma'],  'y0' : waveData['eegPower']['lowGamma']});
+      layers[4].push({"x" : fx, 'y' : waveData['eegPower']['highGamma'],  'y0' : waveData['eegPower']['highGamma']});
+
+      for (var lx=0; lx<n; lx++) {
+        for (var wx=0; wx<layers[lx].length-1; wx++) {
+          layers[lx][wx+1].x = wx;
+        }
+        layers[lx].shift();
+      }
+
+      //- data0 = d3.layout.stack().offset("wiggle")(update_layers(l, n, 0));
+
+      //- // redraw the line, and then slide it to the left
+      svg.selectAll("path")
+        .data(layers)
+          .attr("d", area)
+          .attr("transform", null)
+        .transition()
+          .ease("linear")
+          .attr("transform", "translate(" + x(-1) + ")");
+
+      
+      //
+      //push({"x" : x(2), 'y' : y(1), 'y0' : y(4)});
+      
+    }
+
+    function transition2() {
       d3.selectAll("path")
-          .data(function() {
-            var d = layers1;
-            layers1 = layers0;
-            return layers0 = d;
-          })
+          .data(layers0)
         .transition()
           .duration(2500)
           .attr("d", area);
