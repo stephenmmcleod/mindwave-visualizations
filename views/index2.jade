@@ -5,14 +5,14 @@ block content
   script(type='text/javascript').
     var initialized = false;
     socket.on('updateMindwave', function (data) {
-      if (data['blinkStrength'] == null && data['poorSignalLevel'] < 100) {
+      if (data['blinkStrength'] == null && data['poorSignalLevel'] < 50) {
         //- console.log(data);
         waveData = data;
         transition(waveData);
         blinking = false;
         initialized = true;
       } 
-      else if (initialized == true &&  data['poorSignalLevel'] < 100) {
+      else if (initialized == true &&  data['poorSignalLevel'] < 50) {
         transition(waveData);
         blinking = data['blinkStrength'];
       }
@@ -33,7 +33,7 @@ block content
         resolution = 5,  //number points to add in between buffered values
         cur_buffer = 0,
         data_buffer = {},
-        stack = d3.layout.stack().offset("wiggle"),
+        stack = d3.layout.stack().offset("zero"),
         layers = stack(d3.range(n).map(function() { return bumpLayer(m); }))
         
 
@@ -47,7 +47,7 @@ block content
 
     var y = d3.scale.linear()
         //- .domain([0, d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); })])
-        .domain([-300000, 300000])
+        .domain([-500, 300000])
         .range([height, 0]);
 
     var color = d3.scale.linear()
@@ -134,14 +134,14 @@ block content
           //- layers[6].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowGamma'],      'y0' : -data_buffer[bx]['eegPower']['highGamma']});
           //- layers[7].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highGamma'],     'y0' : -data_buffer[bx]['eegPower']['highGamma']});
           
-          layers[0].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['delta'],         'y0' : -data_buffer[bx]['eegPower']['theta']});
-          layers[1].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['theta'],         'y0' : -data_buffer[bx]['eegPower']['lowAlpha']});
-          layers[2].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowAlpha'],      'y0' : -data_buffer[bx]['eegPower']['highAlpha']});
-          layers[3].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highAlpha'],     'y0' : -data_buffer[bx]['eegPower']['lowBeta']});
-          layers[4].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowBeta'],       'y0' : -data_buffer[bx]['eegPower']['highBeta']});
-          layers[5].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highBeta'],      'y0' : -data_buffer[bx]['eegPower']['lowGamma']});
-          layers[6].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowGamma'],      'y0' : -data_buffer[bx]['eegPower']['highGamma']});
-          layers[7].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highGamma'],     'y0' : -data_buffer[bx]['eegPower']['highGamma']});
+          layers[0].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['delta'],         'y0' : data_buffer[bx]['eegPower']['theta']});
+          layers[1].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['theta'],         'y0' : data_buffer[bx]['eegPower']['lowAlpha']});
+          layers[2].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowAlpha'],      'y0' : data_buffer[bx]['eegPower']['highAlpha']});
+          layers[3].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highAlpha'],     'y0' : data_buffer[bx]['eegPower']['lowBeta']});
+          layers[4].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowBeta'],       'y0' : data_buffer[bx]['eegPower']['highBeta']});
+          layers[5].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highBeta'],      'y0' : data_buffer[bx]['eegPower']['lowGamma']});
+          layers[6].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowGamma'],      'y0' : data_buffer[bx]['eegPower']['highGamma']});
+          layers[7].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highGamma'],     'y0' : data_buffer[bx]['eegPower']['highGamma']});
 
           //shift the data through
           for (var lx=0; lx<n; lx++) {
