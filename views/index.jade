@@ -3,21 +3,32 @@ extends layout
 block content
   .streamgraph
   script(type='text/javascript').
+    var initialized = false;
     socket.on('updateMindwave', function (data) {
-      if (data['blinkStrength'] == null && data['poorSignalLevel'] < 190) {
+      if (data['blinkStrength'] == null && data['poorSignalLevel'] < 100) {
         //- console.log(data);
         waveData = data;
         transition(waveData);
         blinking = false;
-      } else {
-        blinking = data['blinkStrength'];
+        initialized = true;
+      } 
+      else if (initialized == true) {
         transition(waveData);
+        blinking = data['blinkStrength'];
+      }
+      else {
+        console.log('asdf');
+        blinking = data['blinkStrength'];
       }
 
     });
 
-    var n = 5, // number of layers
+    var n = 8, // number of layers
         m = 300, // number of samples per layer
+        buffer = 3,  //number of unique data points to collect (and then curve between)
+        resolution = 10,  //number points to add in between buffered values
+        cur_buffer = 0,
+        data_buffer = {},
         stack = d3.layout.stack().offset("wiggle"),
         layers = stack(d3.range(n).map(function() { return bumpLayer(m); }))
         
@@ -32,7 +43,7 @@ block content
 
     var y = d3.scale.linear()
         //- .domain([0, d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); })])
-        .domain([0, 400000])
+        .domain([-400000, 400000])
         .range([height, 0]);
 
     var color = d3.scale.linear()
@@ -54,38 +65,107 @@ block content
         .style("fill", function() { return color(Math.random()); });
 
     function transition(waveData) {
-      fx = layers[0].length-1;
-      //- fx = 0;
-      layers[0].push({"x" : fx, 'y' : waveData['eegPower']['delta'],     'y0' : waveData['eegPower']['delta']});
-      layers[1].push({"x" : fx, 'y' : waveData['eegPower']['theta'],     'y0' : waveData['eegPower']['theta']});
-      layers[2].push({"x" : fx, 'y' : waveData['eegPower']['lowAlpha'],  'y0' : waveData['eegPower']['lowAlpha']});
-      layers[2].push({"x" : fx, 'y' : waveData['eegPower']['highAlpha'],  'y0' : waveData['eegPower']['highAlpha']});
-      layers[3].push({"x" : fx, 'y' : waveData['eegPower']['lowBeta'],   'y0' : waveData['eegPower']['lowBeta']});
-      layers[3].push({"x" : fx, 'y' : waveData['eegPower']['highBeta'],   'y0' : waveData['eegPower']['highBeta']});
-      layers[4].push({"x" : fx, 'y' : waveData['eegPower']['lowGamma'],  'y0' : waveData['eegPower']['lowGamma']});
-      layers[4].push({"x" : fx, 'y' : waveData['eegPower']['highGamma'],  'y0' : waveData['eegPower']['highGamma']});
-
-      for (var lx=0; lx<n; lx++) {
-        for (var wx=0; wx<layers[lx].length-1; wx++) {
-          layers[lx][wx+1].x = wx;
-        }
-        layers[lx].shift();
+      if (typeof data_buffer[0] == 'undefined') {
+        data_buffer[0] = waveData;
       }
 
-      //- data0 = d3.layout.stack().offset("wiggle")(update_layers(l, n, 0));
+      //- fx = 0;
+      //- layers[0].push({"x" : fx, 'y' : waveData['eegPower']['delta'],     'y0' : waveData['eegPower']['theta']});
+      //- layers[1].push({"x" : fx, 'y' : waveData['eegPower']['theta'],     'y0' : waveData['eegPower']['lowAlpha']});
+      //- layers[2].push({"x" : fx, 'y' : waveData['eegPower']['lowAlpha'],  'y0' : waveData['eegPower']['highAlpha']});
+      //- layers[3].push({"x" : fx, 'y' : waveData['eegPower']['highAlpha'],  'y0' : waveData['eegPower']['lowBeta']});
+      //- layers[4].push({"x" : fx, 'y' : waveData['eegPower']['lowBeta'],   'y0' : waveData['eegPower']['highBeta']});
+      //- layers[5].push({"x" : fx, 'y' : waveData['eegPower']['highBeta'],   'y0' : waveData['eegPower']['lowGamma']});
+      //- layers[6].push({"x" : fx, 'y' : waveData['eegPower']['lowGamma'],  'y0' : waveData['eegPower']['highGamma']});
+      //- layers[7].push({"x" : fx, 'y' : waveData['eegPower']['highGamma'],  'y0' : waveData['eegPower']['delta']});
+      
+      delta = waveData['eegPower']['delta'];
+      theta = waveData['eegPower']['theta'];
+      lowAlpha = waveData['eegPower']['lowAlpha'];
+      highAlpha = waveData['eegPower']['highAlpha'];
+      lowBeta = waveData['eegPower']['lowBeta'];
+      highBeta = waveData['eegPower']['highBeta'];
+      lowGamma = waveData['eegPower']['lowGamma'];
+      highGamma = waveData['eegPower']['highGamma'];
 
-      //- // redraw the line, and then slide it to the left
+      
+      fx = layers[0].length-1;
+
+      if (cur_buffer < 1) {
+        if (data_buffer[cur_buffer]['eegPower'] != waveData['eegPower']) {
+          var tween_from = data_buffer[cur_buffer];
+          var tween_to = waveData;
+          var waveData2 = jQuery.extend(true, {}, waveData);
+          
+          for (var i=0; i<resolution; i++) {
+            // set the scale for interpolation
+            scaled = d3.scale.pow().exponent(2) 
+              .domain([0, resolution])
+              .range([tween_from['eegPower']['delta'], tween_to['eegPower']['delta']]);
+
+            
+            waveData2['eegPower']['delta'] = scaled(i);
+
+            scaled.range([tween_from['eegPower']['theta'], tween_to['eegPower']['theta']]);
+            waveData2['eegPower']['theta'] = scaled(i);
+
+            scaled.range([tween_from['eegPower']['lowAlpha'], tween_to['eegPower']['lowAlpha']]);
+            waveData2['eegPower']['lowAlpha'] = scaled(i);
+
+            scaled.range([tween_from['eegPower']['highAlpha'], tween_to['eegPower']['highAlpha']]);
+            waveData2['eegPower']['highAlpha'] = scaled(i);
+
+            scaled.range([tween_from['eegPower']['lowBeta'], tween_to['eegPower']['lowBeta']]);
+            waveData2['eegPower']['lowBeta'] = scaled(i);
+
+            scaled.range([tween_from['eegPower']['highBeta'], tween_to['eegPower']['highBeta']]);
+            waveData2['eegPower']['highBeta'] = scaled(i);
+
+            scaled.range([tween_from['eegPower']['lowGamma'], tween_to['eegPower']['lowGamma']]);
+            waveData2['eegPower']['lowGamma'] = scaled(i);
+
+            scaled.range([tween_from['eegPower']['highGamma'], tween_to['eegPower']['highGamma']]);
+            waveData2['eegPower']['highGamma'] = scaled(i);
+
+            data_buffer[i+cur_buffer] = waveData2;
+          }
+          cur_buffer++;
+        }
+      } else {
+        cur_buffer = 0;
+        
+        //- //iterate through the buffered data
+        for (var bx=0; bx<Object.keys(data_buffer).length; bx++) {
+
+          layers[0].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['delta'],         'y0' : -data_buffer[bx]['eegPower']['theta']});
+          layers[1].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['theta'],         'y0' : -data_buffer[bx]['eegPower']['lowAlpha']});
+          layers[2].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowAlpha'],      'y0' : -data_buffer[bx]['eegPower']['highAlpha']});
+          layers[3].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highAlpha'],     'y0' : -data_buffer[bx]['eegPower']['lowBeta']});
+          layers[4].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowBeta'],       'y0' : -data_buffer[bx]['eegPower']['highBeta']});
+          layers[5].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highBeta'],      'y0' : -data_buffer[bx]['eegPower']['lowGamma']});
+          layers[6].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['lowGamma'],      'y0' : -data_buffer[bx]['eegPower']['highGamma']});
+          layers[7].push({"x" : fx, 'y' : data_buffer[bx]['eegPower']['highGamma'],     'y0' : -data_buffer[bx]['eegPower']['highGamma']});
+
+          //shift the data through
+          for (var lx=0; lx<n; lx++) {
+            for (var wx=0; wx<layers[lx].length-1; wx++) {
+              layers[lx][wx+1].x = wx;
+            }
+            layers[lx].shift();
+          }
+        }
+      }
+
+
+      // redraw the line, and then slide it to the left
       svg.selectAll("path")
         .data(layers)
           .attr("d", area)
           .attr("transform", null)
         .transition()
           .ease("linear")
-          .attr("transform", "translate(" + x(-1) + ")");
-
-      
-      //
-      //push({"x" : x(2), 'y' : y(1), 'y0' : y(4)});
+          .delay(500)
+          .attr("transform", "translate(" + x(-.5) + ")");
       
     }
 
