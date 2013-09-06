@@ -6,9 +6,12 @@ block content
       if (data['blinkStrength'] == null && data['poorSignalLevel'] < 190) {
         blinking = false;
         sense = data['eSense']['meditation']/100;
+        if (sense < 30) {
+          sense = .1;
+          }
       } else {
         blinking = data['blinkStrength'];
-        sense = 0;
+        sense = .1;
       }
      d3.select("img").transition().duration(500).style("opacity", sense);
     });

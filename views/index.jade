@@ -8,16 +8,16 @@ block content
       if (data['blinkStrength'] == null && data['poorSignalLevel'] < 100) {
         //- console.log(data);
         waveData = data;
-        transition(waveData);
+        transition(data);
         blinking = false;
         initialized = true;
       } 
       else if (initialized == true &&  data['poorSignalLevel'] < 100) {
-        transition(waveData);
+        transition(data);
         blinking = data['blinkStrength'];
       }
       else {
-        console.log('asdf');
+        //- console.log('asdf');
         //- transition(waveData);
 
         blinking = data['blinkStrength'];
@@ -46,8 +46,8 @@ block content
         .range([0, width]);
 
     var y = d3.scale.linear()
-        .domain([0, d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); })])
-        //- .domain([-300000, 300000])
+        //- .domain([0, d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); })])
+        .domain([-300000, 300000])
         .range([height, 0]);
 
     var color = d3.scale.linear()
@@ -72,9 +72,9 @@ block content
         .style("fill", function() { return color(Math.random()); });
 
     function transition(waveData) {
-      if (typeof data_buffer[0] == 'undefined') {
+      if (typeof data_buffer[0] == 'undefined' || typeof data_buffer[0]['eegPower'] == 'undefined') {
         data_buffer[0] = waveData;
-      }
+      } 
 
       
       fx = layers[0].length-1;
@@ -153,7 +153,7 @@ block content
         }
       }
 
-      layers = stack(d3.range(n).map(function() { return bumpLayer(m); }));
+      //- layers = stack(d3.range(n).map(function() { return bumpLayer(m); }));
 
       //- sense = waveData['eSense']['meditation']/100;
       //- bg = color2(sense);
